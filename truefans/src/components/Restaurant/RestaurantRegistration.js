@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Container,
   Paper,
@@ -30,6 +30,7 @@ const RestaurantRegistration = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [authLoading, setAuthLoading] = useState(true);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -46,6 +47,17 @@ const RestaurantRegistration = () => {
       twitter: ''
     }
   });
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (!user) {
+        navigate('/login');
+      }
+      setAuthLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -118,6 +130,21 @@ const RestaurantRegistration = () => {
       setLoading(false);
     }
   };
+
+  if (authLoading) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '100vh'
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>

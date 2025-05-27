@@ -163,9 +163,7 @@ function AppContent() {
         <Route
           path="/register-restaurant"
           element={
-            <ProtectedRoute>
-              <RestaurantRegistration />
-            </ProtectedRoute>
+            <RestaurantRegistration />
           }
         />
         <Route
