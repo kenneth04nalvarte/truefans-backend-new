@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="min-h-screen">
+        <nav class="bg-white shadow-lg">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="flex justify-between h-16">
+                    <div class="flex">
+                        <div class="flex-shrink-0 flex items-center">
+                            <h1 class="text-xl font-bold">Restaurant Dashboard</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <!-- Subscription Status -->
+            <div class="bg-white shadow rounded-lg p-6 mb-6">
+                <h2 class="text-lg font-medium mb-4">Subscription Status</h2>
+                <div id="subscriptionStatus" class="text-gray-600">
+                    Loading...
+                </div>
+                <button id="subscribeButton" class="mt-4 bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700">
+                    Subscribe Now ($15/month)
+                </button>
+            </div>
+
+            <!-- Digital Wallet Customization -->
+            <div class="bg-white shadow rounded-lg p-6 mb-6">
+                <h2 class="text-lg font-medium mb-4">Digital Wallet Customization</h2>
+                <form id="walletCustomizationForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Logo URL</label>
+                        <input type="text" name="logo" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Primary Color</label>
+                        <input type="color" name="primaryColor" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Secondary Color</label>
+                        <input type="color" name="secondaryColor" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Custom Message</label>
+                        <textarea name="customMessage" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
+                    </div>
+                    <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700">
+                        Save Changes
+                    </button>
+                </form>
+            </div>
+
+            <!-- QR Code Display -->
+            <div class="bg-white shadow rounded-lg p-6">
+                <h2 class="text-lg font-medium mb-4">Your QR Code</h2>
+                <div id="qrCodeContainer" class="flex justify-center">
+                    <img id="qrCodeImage" src="" alt="QR Code" class="w-64 h-64">
+                </div>
+                <div class="mt-4 text-center">
+                    <button id="downloadQR" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700">
+                        Download QR Code
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const stripe = Stripe(process.env.STRIPE_PUBLISHABLE_KEY);
+        
+        // Handle subscription
+        document.getElementById('subscribeButton').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/api/subscriptions/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        restaurantId: 'your_restaurant_id', // Replace with actual restaurant ID
+                        paymentMethodId: 'your_payment_method_id' // Replace with actual payment method
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.clientSecret) {
+                    const result = await stripe.confirmCardPayment(data.clientSecret);
+                    if (result.error) {
+                        alert('Payment failed: ' + result.error.message);
+                    } else {
+                        alert('Subscription successful!');
+                        updateSubscriptionStatus();
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Subscription failed. Please try again.');
+            }
+        });
+
+        // Handle wallet customization
+        document.getElementById('walletCustomizationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                const response = await fetch('/api/restaurants/update-wallet', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    alert('Wallet customization saved successfully!');
+                    updateQRCode();
+                } else {
+                    throw new Error('Failed to save customization');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to save customization. Please try again.');
+            }
+        });
+
+        // Update subscription status
+        async function updateSubscriptionStatus() {
+            try {
+                const response = await fetch('/api/subscriptions/status');
+                const data = await response.json();
+                document.getElementById('subscriptionStatus').textContent = 
+                    `Status: ${data.status}\nNext billing date: ${new Date(data.currentPeriodEnd).toLocaleDateString()}`;
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Update QR code
+        async function updateQRCode() {
+            try {
+                const response = await fetch('/api/restaurants/qr-code');
+                const data = await response.json();
+                document.getElementById('qrCodeImage').src = data.qrCode;
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Download QR code
+        document.getElementById('downloadQR').addEventListener('click', () => {
+            const qrCode = document.getElementById('qrCodeImage');
+            const link = document.createElement('a');
+            link.download = 'restaurant-qr-code.png';
+            link.href = qrCode.src;
+            link.click();
+        });
+
+        // Initial load
+        updateSubscriptionStatus();
+        updateQRCode();
+    </script>
+</body>
+</html> 
