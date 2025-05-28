@@ -95,6 +95,8 @@ router.post('/login', async (req, res) => {
             }
         };
 
+        // Remove password before sending user data
+        delete userData.password;
         jwt.sign(
             payload,
             process.env.JWT_SECRET,
@@ -109,7 +111,8 @@ router.post('/login', async (req, res) => {
                 }
                 res.json({
                     success: true,
-                    token
+                    token,
+                    user: userData
                 });
             }
         );
