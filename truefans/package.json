@@ -3,10 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "description": "Backend for restaurant loyalty application",
-  "main": "src/server.js",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js",
     "vercel-build": "echo 'No build step required'"
   },
   "keywords": [],
