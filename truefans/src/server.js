@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const digitalPassesRouter = require('./routes/digitalPasses');
 
 const app = express();
 
@@ -16,6 +17,9 @@ app.get('/', (req, res) => {
 app.get('/api/hello', (req, res) => {
   res.json({ message: 'Hello from the TrueFans backend!' });
 });
+
+// Digital Passes route
+app.use('/api/digitalPasses', digitalPassesRouter);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
