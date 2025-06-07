@@ -20,19 +20,23 @@ const transporter = nodemailer.createTransport({
 // Generate a new digital pass for a diner (no auth required)
 router.post('/generate', async (req, res) => {
     try {
-        const { name, phone, birthday, restaurantId } = req.body;
-        // Find restaurant by restaurantId
-        const restaurantDoc = await db.collection('restaurants').doc(restaurantId).get();
-        if (!restaurantDoc.exists) {
-            return res.status(404).json({ success: false, error: 'Restaurant not found' });
+        const { name, phone, birthday, brandId, locationId } = req.body;
+        console.log('Received body:', req.body); // Log incoming body for debugging
+        if (!brandId || !locationId) {
+            return res.status(400).json({ success: false, error: 'Missing brandId or locationId' });
         }
-        const restaurant = restaurantDoc.data();
+        // Find location by brandId and locationId
+        const locationDoc = await db.collection('brands').doc(brandId).collection('locations').doc(locationId).get();
+        if (!locationDoc.exists) {
+            return res.status(404).json({ success: false, error: 'Location not found' });
+        }
+        const location = locationDoc.data();
         // Create a dummy user object for PassNinja
         const user = { firstName: name, lastName: '', phone, birthday };
         // Generate unique pass ID
         const passId = generatePassId();
         // Create PassNinja pass
-        const passNinjaPass = await passNinjaService.createPass(user, restaurant, { passId, points: 0 });
+        const passNinjaPass = await passNinjaService.createPass(user, location, { passId, points: 0 });
         // Respond with download URL
         res.status(201).json({
             success: true,
