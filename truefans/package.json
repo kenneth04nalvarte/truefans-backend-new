@@ -1,38 +1,34 @@
 {
-  "name": "restaurant-loyalty-backend",
-  "version": "1.0.0",
+  "name": "truefans-frontend",
+  "version": "0.1.0",
   "private": true,
-  "description": "Backend for restaurant loyalty application",
-  "scripts": {
-    "vercel-build": "echo 'No build step required'"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "bcryptjs": "^2.4.3",
-    "cors": "^2.8.5",
-    "dotenv": "^16.0.3",
-    "express": "^4.18.2",
-    "express-mongo-sanitize": "^2.2.0",
-    "express-rate-limit": "^7.5.0",
-    "geolib": "^3.3.4",
-    "helmet": "^8.1.0",
-    "jsonwebtoken": "^9.0.2",
-    "nodemailer": "^7.0.3",
-    "passport": "^0.7.0",
-    "passport-jwt": "^4.0.1",
-    "qrcode": "^1.5.4",
-    "stripe": "^12.18.0",
-    "winston": "^3.17.0",
-    "xss-clean": "^0.1.4"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1"
   },
-  "devDependencies": {
-    "axios": "^1.9.0",
-    "firebase-admin": "^13.3.0",
-    "nodemon": "^2.0.22"
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
   },
-  "engines": {
-    "node": ">=16.0.0"
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }
