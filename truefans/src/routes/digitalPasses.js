@@ -7,6 +7,8 @@ const { generatePassId } = require('../utils/qrcode');
 const { sendDigitalPass } = require('../utils/email');
 const passNinjaService = require('../services/passNinjaService');
 const auth = require('../middleware/auth');
+const fs = require('fs');
+const generatePass = require('../../generatePass');
 
 // Create a transporter for sending emails
 const transporter = nodemailer.createTransport({
@@ -35,13 +37,18 @@ router.post('/generate', async (req, res) => {
         const user = { firstName: name, lastName: '', phone, birthday };
         // Generate unique pass ID
         const passId = generatePassId();
-        // Create PassNinja pass
-        const passNinjaPass = await passNinjaService.createPass(user, location, { passId, points: 0 });
-        // Respond with download URL
-        res.status(201).json({
-            success: true,
-            downloadUrl: passNinjaPass.downloadUrl
+        // Generate the pass using our own code
+        const passPath = await generatePass({
+            serialNumber: passId,
+            restaurantName: location.name,
+            description: 'Restaurant Loyalty Pass',
+            // modelFolder: ... (add if you want to specify a custom model)
         });
+        // Stream the .pkpass file to the client
+        res.setHeader('Content-Type', 'application/vnd.apple.pkpass');
+        res.setHeader('Content-Disposition', `attachment; filename="pass.pkpass"`);
+        const fileStream = fs.createReadStream(passPath);
+        fileStream.pipe(res);
     } catch (error) {
         console.error('Error generating digital pass:', error);
         res.status(500).json({ success: false, error: 'Failed to generate digital pass' });

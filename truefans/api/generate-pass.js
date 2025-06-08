@@ -2,6 +2,7 @@ import admin from 'firebase-admin';
 import sharp from 'sharp';
 import fs from 'fs';
 import path from 'path';
+const generatePass = require('../../generatePass');
 
 // Initialize Firebase Admin SDK only once
 if (!admin.apps.length) {
@@ -43,14 +44,27 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { logoUrl } = req.body;
-    if (!logoUrl) {
-      return res.status(400).json({ error: 'logoUrl is required' });
+    const { logoUrl, serialNumber, restaurantName, description } = req.body;
+    if (!logoUrl || !serialNumber || !restaurantName) {
+      return res.status(400).json({ error: 'logoUrl, serialNumber, and restaurantName are required' });
     }
     const resizedLogoBuffer = await downloadAndResizeLogo(logoUrl);
-    // Use resizedLogoBuffer in your pass generation logic
-    // ...
-    return res.status(200).json({ message: 'Pass generated successfully' });
+    // Save resizedLogoBuffer to a temp file to be used in the pass model if needed
+    // ... (add logic if your pass model uses the logo file)
+
+    // Generate the pass
+    const passPath = await generatePass({
+      serialNumber,
+      restaurantName,
+      description: description || 'Restaurant Loyalty Pass',
+      // modelFolder: ... (add if you want to specify a custom model)
+    });
+
+    // Stream the .pkpass file to the client
+    res.setHeader('Content-Type', 'application/vnd.apple.pkpass');
+    res.setHeader('Content-Disposition', `attachment; filename="pass.pkpass"`);
+    const fileStream = fs.createReadStream(passPath);
+    fileStream.pipe(res);
   } catch (error) {
     console.error('Error generating pass:', error);
     return res.status(500).json({ error: 'Error generating pass' });
