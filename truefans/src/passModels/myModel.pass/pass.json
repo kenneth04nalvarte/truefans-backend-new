@@ -1,0 +1,22 @@
+{
+  "formatVersion": 1,
+  "passTypeIdentifier": "pass.com.yourcompany.restaurantloyalty",
+  "teamIdentifier": "YOUR_TEAM_ID",
+  "organizationName": "Your Restaurant Name",
+  "description": "Loyalty Pass for Restaurant",
+  "logoText": "RESTAURANT",
+  "foregroundColor": "rgb(255,255,255)",
+  "backgroundColor": "rgb(230,57,118)",
+  "labelColor": "rgb(0,0,0)",
+  "generic": {
+    "primaryFields": [
+      { "key": "name", "label": "Name", "value": "Loyalty Pass" }
+    ],
+    "secondaryFields": [
+      { "key": "benefit", "label": "Benefit", "value": "Free meal after 10 visits" }
+    ],
+    "auxiliaryFields": [
+      { "key": "validity", "label": "Validity", "value": "30 days" }
+    ]
+  }
+} 
