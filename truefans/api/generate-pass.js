@@ -2,7 +2,7 @@ import admin from 'firebase-admin';
 import sharp from 'sharp';
 import fs from 'fs';
 import path from 'path';
-const generatePass = require('../../generatePass');
+import generatePass from '../generatePass.js';
 
 // Initialize Firebase Admin SDK only once
 if (!admin.apps.length) {

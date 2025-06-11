@@ -8,7 +8,7 @@ const { sendDigitalPass } = require('../utils/email');
 const passNinjaService = require('../services/passNinjaService');
 const auth = require('../middleware/auth');
 const fs = require('fs');
-const generatePass = require('../../generatePass');
+const generatePass = require('../generatePass.js');
 
 // Create a transporter for sending emails
 const transporter = nodemailer.createTransport({
